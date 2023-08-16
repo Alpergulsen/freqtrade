@@ -59,6 +59,7 @@ class MACDStrategy(IStrategy):
     # Sell hyperspace params:
     sell_params = {
         "sell_cci": 687,
+
     }
 
     def populate_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
@@ -69,6 +70,8 @@ class MACDStrategy(IStrategy):
         dataframe['macdhist'] = macd['macdhist']
         dataframe['cci'] = ta.CCI(dataframe)
         dataframe['rsi'] = ta.RSI(dataframe)
+        dataframe['ema5'] = ta.EMA(dataframe, timeperiod=5)
+        dataframe['rsi5'] = ta.RSI(dataframe, timeperiod=5)
 
         return dataframe
 
@@ -80,14 +83,14 @@ class MACDStrategy(IStrategy):
         """
         dataframe.loc[
             (
-                (dataframe['macd'] > dataframe['macdsignal']) &
-                (dataframe['cci'] <= self.buy_cci.value) &
+                (dataframe['rsi5'] > dataframe['ema5'])&
+                (dataframe['rsi5'] < 50) &
                 (dataframe['volume'] > 0)  # Make sure Volume is not 0
             ),
             'enter_long'] = 1
         dataframe.loc[
             (
-                (dataframe['rsi'] > 70) 
+                (dataframe['rsi5'] > 50) 
             ),
             'enter_short'] = 1
 
@@ -101,9 +104,7 @@ class MACDStrategy(IStrategy):
         """
         dataframe.loc[
             (
-                (dataframe['macd'] < dataframe['macdsignal']) &
-                (dataframe['cci'] >= self.sell_cci.value) &
-                (dataframe['volume'] > 0)  # Make sure Volume is not 0
+                (dataframe['rsi'] > 78)
             ),
             'exit_long'] = 1
         dataframe.loc[
