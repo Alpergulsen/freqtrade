@@ -28,10 +28,16 @@ class FAdxSmaStrategy(IStrategy):
     timeframe = "1h"
     # Minimal ROI designed for the strategy.
     # This attribute will be overridden if the config file contains "minimal_roi".
-    minimal_roi = {"60": 0.075, "30": 0.1, "0": 0.05}
+    minimal_roi = {
+    "0": 0.138,
+    "39": 0.054,
+    "91": 0.037,
+    "129": 0
+}
+
     # minimal_roi = {"0": 1}
 
-    stoploss = -0.05
+    stoploss = -0.028
     can_short = True
 
     # Trailing stoploss
@@ -39,6 +45,7 @@ class FAdxSmaStrategy(IStrategy):
     # trailing_only_offset_is_reached = False
     # trailing_stop_positive = 0.01
     # trailing_stop_positive_offset = 0.0  # Disabled / not configured
+
 
     # Run "populate_indicators()" only for new candle.
     process_only_new_candles = True
@@ -49,8 +56,10 @@ class FAdxSmaStrategy(IStrategy):
     # Hyperoptable parameters
 
     # Define the guards spaces
-    pos_entry_adx = DecimalParameter(15, 40, decimals=1, default=30.0, space="buy")
-    pos_exit_adx = DecimalParameter(15, 40, decimals=1, default=30.0, space="sell")
+    # Define the guards spaces
+    pos_entry_adx = DecimalParameter(15, 40, decimals=1, default=39.9, space="buy")
+    pos_exit_adx = DecimalParameter(15, 40, decimals=1, default=17.0, space="sell")
+
 
     # Define the parameter spaces
     adx_period = IntParameter(4, 24, default=14)
@@ -100,12 +109,12 @@ class FAdxSmaStrategy(IStrategy):
 
         dataframe.loc[
             reduce(lambda x, y: x & y, conditions_long),
-            "enter_short",
+            "enter_long",
         ] = 1
 
         dataframe.loc[
             reduce(lambda x, y: x & y, conditions_short),
-            "enter_long",
+            "enter_short",
         ] = 1
 
         return dataframe
